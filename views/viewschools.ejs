@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SchoolHub - View Schools</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="viewschools.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>SchoolHub</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <a href="/addSchool" class="btn btn-primary">Add New School</a>
+          <a href="#" class="btn btn-secondary" onclick="goToNearbySchools()">View Schools</a>
+
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="view-schools">
+      <div class="container">
+        <div class="page-header">
+          <h2>All Schools</h2>
+          <p>Browse through all registered schools in the database.</p>
+        </div>
+        
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search schools...">
+        </div>
+        
+        <div class="schools-grid" id="schoolsContainer">
+            <% if (schools.length > 0) { %>
+              <% schools.forEach(school => { %>
+                <div class="school-card">
+                  <h2><%= school.name %></h2>
+                  <p><strong>Address:</strong> <%= school.address %></p>
+                  <p><strong>Latitude:</strong> <%= school.latitude %></p>
+                  <p><strong>Longitude:</strong> <%= school.longitude %></p>
+           
+                  <p><strong>Distance:</strong> <%=school.distance.toFixed(2) %> km</p>
+
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="no-schools-message" id="noSchools">
+                No schools found. <a href="/addSchool">Add a school</a> to get started.
+              </div>
+            <% } %>
+          </div>
+          
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      
+    </div>
+  </footer>
+<script>
+    
+  function goToNearbySchools() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        window.location.href = `/listSchools?userLat=${lat}&userLng=${lng}`;
+      }, function(error) {
+        alert("Unable to get your location. Please allow location access.");
+      });
+    } else {
+      alert("Geolocation not supported by this browser.");
+    }
+  }
+
+
+</script>
+</body>
+</html>

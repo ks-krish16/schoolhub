@@ -1,0 +1,93 @@
+/* View Schools Styling */
+.view-schools {
+    padding: var(--spacing-5) 0;
+  }
+  
+  .search-bar {
+    max-width: 600px;
+    margin: 0 auto var(--spacing-4);
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: var(--spacing-2);
+    border-radius: var(--border-radius-lg);
+    border: 2px solid var(--gray-300);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .search-bar input:focus {
+    box-shadow: 0 0 0 3px rgba(52, 86, 255, 0.2);
+    border-color: var(--primary-color);
+  }
+
+  
+/* Grid Container */
+/* Grid Container */
+.schools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+    padding: 30px;
+    background-color: #f9f9f9;
+  }
+  
+  /* School Card */
+  .school-card {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 25px 30px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 220px;
+  }
+  
+  .school-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* School Name */
+  .school-card h2 {
+    font-size: 1.6rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+  
+  /* Info */
+  .school-card p {
+    font-size: 1.05rem;
+    color: #444;
+    margin: 6px 0;
+  }
+  
+  /* No Schools Message */
+  .no-schools-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 40px 20px;
+    color: #888;
+    background-color: #fff;
+    border-radius: 10px;
+  }
+  
+  .no-schools-message a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .schools-grid {
+      grid-template-columns: 1fr;
+    }
+  }

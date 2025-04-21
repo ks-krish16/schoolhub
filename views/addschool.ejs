@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SchoolHub - Add School</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="addschool.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>SchoolHub</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <a href="/addSchool" class="btn btn-primary">Add New School</a>
+          <a href="#" class="btn btn-secondary" onclick="goToNearbySchools()">View Schools</a>
+
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="add-school">
+      <div class="container">
+        <div class="page-header">
+          <h2>Add New School</h2>
+          <p>Enter the details of the school you want to add to the database.</p>
+        </div>
+        
+        <div class="form-container">
+          <form id="schoolForm">
+            <div class="form-group">
+              <label for="schoolName">School Name</label>
+              <input type="text" id="schoolName" name="schoolName" required>
+              <div class="error-message" id="nameError"></div>
+            </div>
+            
+            <div class="form-group">
+              <label for="schoolAddress">School Address</label>
+              <textarea id="schoolAddress" name="schoolAddress" required></textarea>
+              <div class="error-message" id="addressError"></div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="latitude">Latitude</label>
+                <input type="number" id="latitude" name="latitude" step="any" required>
+                <div class="error-message" id="latError"></div>
+              </div>
+              
+              <div class="form-group half">
+                <label for="longitude">Longitude</label>
+                <input type="number" id="longitude" name="longitude" step="any" required>
+                <div class="error-message" id="longError"></div>
+              </div>
+            </div>
+            
+            <div class="form-buttons">
+              <button type="submit" class="btn btn-primary" id="submitBtn">Add School</button>
+              <button type="reset" class="btn btn-secondary">Reset</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 SchoolHub. All rights reserved.</p>
+    </div>
+  </footer>
+
+<script>
+  
+  function goToNearbySchools() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        window.location.href = `/listSchools?userLat=${lat}&userLng=${lng}`;
+      }, function(error) {
+        alert("Unable to get your location. Please allow location access.");
+      });
+    } else {
+      alert("Geolocation not supported by this browser.");
+    }
+  }
+
+
+document.querySelector("#schoolForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    
+    // School data
+    const name = document.querySelector("#schoolName").value;
+    const address = document.querySelector("#schoolAddress").value;
+    const lat = parseFloat(document.querySelector("#latitude").value);
+    const lng = parseFloat(document.querySelector("#longitude").value);
+
+    // Check if geolocation is available
+    if (navigator.geolocation) {
+        // Get the user's location
+        navigator.geolocation.getCurrentPosition(async function (position) {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            // Log the user coordinates to check if they are correct
+            console.log("User Lat:", userLat, "User Lng:", userLng);
+
+
+            const school = {
+                name: name,
+                address: address,
+                lat: lat,
+                lng: lng,
+                userLat:userLat,
+                userLng:userLng
+            };
+            
+            const res = await fetch("http://localhost:5000/addSchool", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(school)
+            });
+
+            const data = await res.json();
+            alert(data.message);
+
+            console.log("User Lat:", userLat, "User Lng:", userLng); // For debugging purposes
+            window.location.href = "/";
+
+        }, function(error) {
+            console.error("Error getting geolocation: ", error);
+        });
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+});
+
+
+    
+</script>
+</body>
+</html>

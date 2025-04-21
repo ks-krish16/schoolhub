@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SchoolHub - Home</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>SchoolHub</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="/" class="active">Home</a></li>
+          <a href="/addSchool" class="btn btn-primary">Add New School</a>
+          <a href="#" class="btn btn-secondary" onclick="goToNearbySchools()">View Schools</a>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h2>Manage Schools Effortlessly</h2>
+          <p>A modern platform to organize and track school information with ease.</p>
+          <div class="hero-buttons">
+            <a href="/addSchool" class="btn btn-primary">Add New School</a>
+            <a href="/listSchools" class="btn btn-secondary">View Schools</a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="image-placeholder">
+            <div class="school-icon"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <h2>Key Features</h2>
+        <div class="feature-cards">
+          <div class="feature-card">
+            <div class="feature-icon add-icon"></div>
+            <h3>Add Schools</h3>
+            <p>Easily add new schools with detailed information including geographic coordinates.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon view-icon"></div>
+            <h3>View Schools</h3>
+            <p>Browse through all registered schools with their complete information.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon location-icon"></div>
+            <h3>Location Data</h3>
+            <p>Check the distance between you and the school.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      
+    </div>
+  </footer>
+  <script>
+    
+    function goToNearbySchools() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          window.location.href = `/listSchools?userLat=${lat}&userLng=${lng}`;
+        }, function(error) {
+          alert("Unable to get your location. Please allow location access.");
+        });
+      } else {
+        alert("Geolocation not supported by this browser.");
+      }
+    }
+  
+  
+  </script>
+
+</body>
+</html>
