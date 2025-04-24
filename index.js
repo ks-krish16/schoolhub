@@ -1,80 +1,106 @@
-const express = require("express");
-const app = express();
-const path = require("path");
+const express= require("express");
+const app= express();
+const path=require("path");
+const mysql=require("mysql2");
 require("dotenv").config();
-const { createClient } = require("@supabase/supabase-js");
 
-const port = 5000;
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-app.set("view engine", "ejs");
+const port=5000;
 
-// 🔗 Initialize Supabase
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+app.use(express.json())
+app.use(express.static(path.join(__dirname,"public")));
+app.set("view engine","ejs");
 
-app.get("/", (req, res) => {
-  res.render("home.ejs");
+const db=mysql.createConnection({
+    host : "localhost",
+    user: "root",
+    password: "ksharma2005",
+    database:"school_api"
 });
 
-app.get("/addSchool", (req, res) => {
-  res.render("addschool.ejs");
-});
 
-// ➕ Add school (Insert)
-app.post("/addSchool", async (req, res) => {
-  const { name, address, lat, lng } = req.body;
+db.connect((err)=>{
+    if (err){
+        console.log("database failed to connect",err);
+    }
+    else{
+        console.log("database connected successfully");
+    }  
+})
 
-  const { error } = await supabase
-    .from("schools")
-    .insert([{ name, address, latitude: lat, longitude: lng }]);
+app.get("/",(req,res)=>{
+    res.render("home.ejs")
+})
+app.get("/addSchool",(req,res)=>{
+    res.render("addschool.ejs")
+})
 
-  if (error) {
-    console.error("Error inserting school:", error);
-    return res.status(500).send("Error uploading school");
-  }
 
-  res.json({ message: "School added successfully!" });
-});
+app.post("/addSchool",(req,res)=>{
+    const{ name ,address ,lat ,lng,userLat,userLng}=req.body
 
-function toRad(deg) {
-  return (deg * Math.PI) / 180;
+
+    const q=`INSERT INTO schools(name,address,latitude,longitude) VALUES (?,?,?,?) `
+    db.query(q,[name,address,lat,lng],(err,result)=>{
+        if (err) {
+            console.error("Error inserting post:", err);
+            res.status(500).send("Error uploading post");
+        } else {
+            res.json({ message: "Post uploaded successfully!" });;
+        }
+    })
+})
+
+function toRad(deg){
+    return deg* Math.PI/180;
 }
 
-function getDist(user_lat, user_lng, schl_lat, schl_lng) {
-  const R = 6371;
-  user_lat = parseFloat(user_lat);
-  user_lng = parseFloat(user_lng);
-  schl_lat = parseFloat(schl_lat);
-  schl_lng = parseFloat(schl_lng);
-  const x = toRad(schl_lng - user_lng) * Math.cos(toRad((schl_lat + user_lat) / 2));
-  const y = toRad(schl_lat - user_lat);
-  return Math.sqrt(x * x + y * y) * R;
+function getDist(user_lat,user_lng,schl_lat,schl_lng){
+    const R=6371; //radius of earth
+    user_lat = parseFloat(user_lat);   // Ensure it's a number
+    user_lng = parseFloat(user_lng);   // Ensure it's a number
+    schl_lat = parseFloat(schl_lat);   // Ensure it's a number
+    schl_lng = parseFloat(schl_lng);   
+    x= toRad(schl_lng-user_lng)*Math.cos(toRad((schl_lat+user_lat)/2));
+    y=toRad(schl_lat-user_lat);
+    return  Math.sqrt(x*x + y*y)*R;
 }
 
-// 📍 List schools sorted by proximity
-app.get("/listSchools", async (req, res) => {
-  const userLat = req.query.userLat;
-  const userLng = req.query.userLng;
 
-  const { data: schools, error } = await supabase.from("schools").select("*");
+app.get('/listSchools', (req, res) => {
+    const userLat = req.query.userLat;
+    const userLng = req.query.userLng;
 
-  if (error) {
-    return res.status(500).json({ message: "Database error", error });
-  }
+    console.log("Received User Lat: ", userLat, "User Lng: ", userLng);
 
-  const schoolsDist = schools.map((school) => ({
-    ...school,
-    distance: getDist(userLat, userLng, school.latitude, school.longitude),
-  }));
+    const query = 'SELECT * FROM schools';
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database error', error: err });
+        }
 
-  schoolsDist.sort((a, b) => a.distance - b.distance);
+        const schoolsDist = results.map(school => {
+            // Calculate the distance for each school
+            const distance = getDist(userLat, userLng, school.latitude, school.longitude);
+            console.log(`School: ${school.name}, Distance: ${distance}`);
+            return {
+                ...school,
+                distance: distance
+            };
+            
+        });
 
-  res.render("viewschools", {
-    schools: schoolsDist,
-  });
+
+        // Sort schools by distance
+        schoolsDist.sort((a, b) => a.distance - b.distance);
+
+        // Render the view with sorted schools
+        res.render('viewschools', {
+            schools: schoolsDist
+        });
+    });
 });
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
+app.listen(port,()=>{
+    console.log(`listening to ${port}`)
+})
